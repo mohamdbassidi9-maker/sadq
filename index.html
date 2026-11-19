@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>How I feel</title>
+<style>
+:root{
+  --bg:#1b2433; --bg2:#0f1520; --ink:#dfe6f0; --dim:#8c9ab0; --rain:#9fb4d3; --glow:#c9d6ea;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#1b2433;--bg2:#0f1520;--ink:#dfe6f0}}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{background:linear-gradient(var(--bg),var(--bg2));color:var(--ink);font-family:Georgia,"Iowan Old Style",serif;overflow:hidden}
+canvas{position:fixed;inset:0;width:100%;height:100%}
+main{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px}
+h1{font-weight:400;font-size:clamp(2rem,7vw,3.6rem);margin:0 0 .6em;letter-spacing:.01em}
+#msg{max-width:30em;font-size:clamp(1.05rem,3.6vw,1.3rem);line-height:1.7;color:var(--ink);min-height:9em}
+#msg p{margin:0 0 .9em;opacity:0;transition:opacity 1.6s ease}
+#msg p.on{opacity:1}
+button{margin-top:1.4em;background:transparent;color:var(--ink);border:1px solid var(--dim);border-radius:999px;padding:.7em 1.6em;font:inherit;cursor:pointer;transition:background .3s}
+button:hover{background:rgba(255,255,255,.08)}
+button:focus-visible{outline:2px solid var(--glow);outline-offset:3px}
+</style>
+</head>
+<body>
+<canvas id="c" aria-hidden="true"></canvas>
+<main>
+  <h1>I’m sad.</h1>
+  <div id="msg" aria-live="polite"></div>
+  <button id="b">Let it rain</button>
+</main>
+<script>
+// EDIT THESE LINES to say what you really feel:
+const lines = [
+  "I haven’t been myself lately.",
+  "Everything feels a little grey, and I keep thinking about us.",
+  "I’m not asking you to fix it.",
+  "I just didn’t want to hide it from you anymore."
+];
+const c=document.getElementById('c'),x=c.getContext('2d');
+let W,H,drops=[],power=0.25,reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function size(){W=c.width=innerWidth;H=c.height=innerHeight;drops=Array.from({length:220},()=>({x:Math.random()*W,y:Math.random()*H,l:8+Math.random()*16,v:4+Math.random()*6}))}
+addEventListener('resize',size);size();
+function draw(){
+  x.clearRect(0,0,W,H);x.strokeStyle='rgba(159,180,211,.45)';x.lineWidth=1;
+  const n=Math.floor(drops.length*power);
+  for(let i=0;i<n;i++){const d=drops[i];x.beginPath();x.moveTo(d.x,d.y);x.lineTo(d.x-1.5,d.y+d.l);x.stroke();
+    if(!reduce){d.y+=d.v*(.6+power);d.x-=.4}
+    if(d.y>H){d.y=-20;d.x=Math.random()*W}}
+  requestAnimationFrame(draw);
+}
+draw();
+let i=0;const box=document.getElementById('msg'),btn=document.getElementById('b');
+btn.onclick=()=>{
+  if(i<lines.length){
+    const p=document.createElement('p');p.textContent=lines[i];box.appendChild(p);
+    requestAnimationFrame(()=>requestAnimationFrame(()=>p.classList.add('on')));
+    i++;power=Math.min(1,.25+i*.2);
+    btn.textContent=i<lines.length?'Go on':'I’m here';
+  } else {btn.style.display='none'}
+};
+</script>
+</body>
+</html>
